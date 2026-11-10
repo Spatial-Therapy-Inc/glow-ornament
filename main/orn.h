@@ -50,7 +50,8 @@ void orn_input(orn_t *o, orn_input_t in);
 void orn_set_shape(orn_t *o, int shape);
 /** One tick. screen_off_s: the shared screen-off time (0 never). tilt_target: -1..1 from the sensor. */
 void orn_tick(orn_t *o, int dt_ms, int screen_off_s, float tilt_target, bool night, bool ui_open);
-/** The panel's level, 0..255, from the shared brightness (percent) and the scene's light (0..1, its breathing). */
+/** The panel's level, 0..255, from the shared brightness (percent) and the scene's light (0..1, its breathing). While
+ *  a system screen is up (ui_open), the shared brightness whatever else: asleep too. */
 int orn_level(const orn_t *o, int shared_percent, float light);
 int orn_ramp(int level, int target, int dt_ms);
 /** Seconds since the last touch / shake by the scene clock; a large number when there was none. */

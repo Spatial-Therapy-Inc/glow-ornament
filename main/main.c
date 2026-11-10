@@ -32,6 +32,8 @@
 #include "yk_app_summary.h"
 #include "yk_apps.h"
 #include "yk_hint.h"
+#include "yk_more.h"
+#include "yk_vc_view.h"
 
 #define APP_SLUG "glow-ornament"
 static const char *TAG = "glow-ornament";
@@ -61,7 +63,12 @@ static atomic_int s_shape_to_save;
 static atomic_int s_shape_cmd = -1;
 static esp_timer_handle_t s_save_timer;
 
-static lv_obj_t *s_root;
+static lv_obj_t *s_root, *s_screen;
+// The screen's children once it was made (the scene's root, the touch layer, the hint): anything else on it later is
+// the system's, put over the app (the pull-down sheet is made there, its top child).
+#define OWN_MAX 12
+static lv_obj_t *s_own[OWN_MAX];
+static uint32_t s_owns;
 static int s_built = -1, s_level, s_shown_dx, s_shown_dy;
 static int64_t s_last_ms, s_level_ms;
 static float s_last_t;
@@ -240,6 +247,21 @@ static void count_frame(int64_t now, int64_t work_us) {
     s_perf_at = now;
 }
 
+/** Something of the system's over the app: the app ring, 「回到 Pip 说？」, 「更多」, the 应用码, or anything put on our
+ *  screen after we made it (the pull-down sheet, which has no query of its own). In the LVGL task. */
+static bool system_screen_up(void) {
+    if (yk_apps_is_open() || yk_apps_ask_is_open() || yk_more_is_open() || yk_vc_showing()) return true;
+    if (!s_screen) return false;
+    const uint32_t n = lv_obj_get_child_count(s_screen);
+    for (uint32_t i = 0; i < n; i++) {
+        const lv_obj_t *c = lv_obj_get_child(s_screen, (int32_t)i);
+        bool own = false;
+        for (uint32_t k = 0; k < s_owns && !own; k++) own = s_own[k] == c;
+        if (!own) return true;
+    }
+    return false;
+}
+
 /** LVGL timer: runs with the board lock held, so it may touch the screen. */
 static void tick(lv_timer_t *timer) {
     (void)timer;
@@ -260,7 +282,7 @@ static void tick(lv_timer_t *timer) {
     if (cmd >= 0) orn_set_shape(&s_orn, cmd);
 
     // The system's screens open in their own time; asking each tick keeps the panel up for them.
-    orn_tick(&s_orn, dt, yk_app_screen_off_s(), read_tilt(), read_night(), yk_apps_is_open() || yk_apps_ask_is_open());
+    orn_tick(&s_orn, dt, yk_app_screen_off_s(), read_tilt(), read_night(), system_screen_up());
     if (s_orn.shape_changed) {
         s_orn.shape_changed = false;
         atomic_store(&s_shape_to_save, s_orn.shape);
@@ -286,8 +308,11 @@ static void tick(lv_timer_t *timer) {
     if (!atomic_load(&s_leaving)) {
         // Ramped by the time since the last send, so sending less often does not slow the ramp.
         const int since = (int)(now - s_level_ms > 1000 ? 1000 : now - s_level_ms);  // hours unchanged: no overflow
-        const int level = orn_ramp(s_level, orn_level(&s_orn, yk_app_brightness(), light), since);
-        if (level != s_level && since >= LEVEL_EVERY_MS) {
+        const int target = orn_level(&s_orn, yk_app_brightness(), light);
+        // A system screen up: its level at once, no ramp and no wait (asleep, the panel was dark under it).
+        const bool at_once = s_orn.ui_open;
+        const int level = at_once ? target : orn_ramp(s_level, target, since);
+        if (level != s_level && (at_once || since >= LEVEL_EVERY_MS)) {
             s_level = level;
             s_level_ms = now;
             board_brightness_raw_set((uint8_t)level);
@@ -310,6 +335,7 @@ static esp_err_t on_command(const char *name, const cJSON *args, cJSON *reply, c
         cJSON_AddBoolToObject(reply, "night", s_orn.night);
         cJSON_AddNumberToObject(reply, "tilt", roundf(s_orn.tilt * 100) / 100);
         cJSON_AddNumberToObject(reply, "level", s_level);
+        cJSON_AddBoolToObject(reply, "systemScreen", s_orn.ui_open);
         cJSON_AddNumberToObject(reply, "fps", roundf(s_fps * 10) / 10);
         cJSON_AddNumberToObject(reply, "workMs", roundf(s_work_ms * 10) / 10);
         cJSON_AddNumberToObject(reply, "refrMs", roundf(s_refr_ms * 10) / 10);
@@ -423,6 +449,10 @@ static void make_screen(void) {
 
     // The first time in this app: an arrow at the side key, 「双击：应用和回家」, until the app ring was opened once.
     if (yk_hint_should(YK_HINT_APPS)) yk_hint_show(screen, YK_HINT_APPS, NULL);
+    // What is ours on the screen (see system_screen_up).
+    s_screen = screen;
+    s_owns = 0;
+    for (uint32_t i = 0; i < lv_obj_get_child_count(screen) && s_owns < OWN_MAX; i++) s_own[s_owns++] = lv_obj_get_child(screen, (int32_t)i);
 }
 
 void app_main(void) {

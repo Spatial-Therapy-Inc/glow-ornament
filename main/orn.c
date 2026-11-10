@@ -89,11 +89,13 @@ void orn_tick(orn_t *o, int dt_ms, int screen_off_s, float tilt_target, bool nig
 }
 
 int orn_level(const orn_t *o, int shared_percent, float light) {
+    int full = shared_percent * 255 / 100;
+    // A system screen over the app (the app ring, 「回到 Pip 说？」, the pull-down, the 应用码): the shared level,
+    // asleep or not, or it is drawn on a dark panel.
+    if (o->ui_open) return full;
     if (o->asleep) return 0;
     if (light < 0) light = 0;
     if (light > 1) light = 1;
-    int full = shared_percent * 255 / 100;
-    if (o->ui_open) return full;
     if (o->night) full = full * ORN_NIGHT_PERCENT / 100;
     int level = (int)(full * light + 0.5f);
     if (o->fading) level = level * (ORN_FADE_MS - o->fade_ms) / ORN_FADE_MS;

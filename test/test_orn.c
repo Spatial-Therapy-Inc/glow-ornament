@@ -104,6 +104,22 @@ static void test_side_and_face_down(void) {
 
 static void test_system_screen(void) {
     orn_t o;
+    // Asleep, dark: the app ring opened over it gets the shared brightness, and the dark comes back after it.
+    orn_init(&o, 0);
+    orn_input(&o, ORN_IN_SIDE);
+    for (int i = 0; i < 200; i++) orn_tick(&o, 33, 30, 0, false, false);
+    CHECK(o.asleep && orn_level(&o, 80, 1) == 0);
+    orn_tick(&o, 33, 30, 0, false, true);
+    CHECK(o.asleep && orn_level(&o, 80, 1) == 80 * 255 / 100);
+    orn_tick(&o, 33, 30, 0, true, true);
+    CHECK(orn_level(&o, 80, 1) == 80 * 255 / 100);  // the night's dimming is the app's, not the system screen's
+    orn_tick(&o, 33, 30, 0, false, false);
+    CHECK(o.asleep && orn_level(&o, 80, 1) == 0);
+    // Going to sleep, faded half way: the same.
+    orn_init(&o, 0);
+    orn_input(&o, ORN_IN_FACE_DOWN);
+    orn_tick(&o, ORN_FADE_MS / 2, 30, 0, false, true);
+    CHECK(o.fading && orn_level(&o, 80, 1) == 80 * 255 / 100);
     orn_init(&o, 0);
     orn_tick(&o, 33, 30, 0, true, true);
     CHECK(orn_level(&o, 80, 0.2f) == 80 * 255 / 100);  // the system's own level, not the night's nor the scene's
