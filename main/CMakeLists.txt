@@ -1,6 +1,7 @@
-idf_component_register(SRCS "main.c" "counter.c"
+idf_component_register(SRCS "main.c" "orn.c" "orn_draw.c" "scenes.c"
     INCLUDE_DIRS "."
-    REQUIRES yaykit_board lvgl__lvgl yaykit_app yaykit_key yaykit_link yaykit_ui yaykit_voicecode
+    EMBED_FILES "../art/mushroom.rgb565" "../art/flame.rgb565" "../art/bell.rgb565"
+    REQUIRES yaykit_board lvgl__lvgl yaykit_app yaykit_key yaykit_link yaykit_ui yaykit_voicecode yaykit_motion
     PRIV_REQUIRES nvs_flash console esp_timer)
 # The shared font partition; the app's own full install writes it too. Found through yaykit_board, wherever the
 # shared components are (this repository or the development kit).

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="136" height="236" viewBox="0 0 136 236">
+  <!-- 烛火's flame at 2.6 times the design's path; its foot (the pivot it sways about) is at (68, 222). -->
+  <defs>
+    <linearGradient id="outer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFD27A" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#FFB45A" stop-opacity="0.9"/>
+      <stop offset="80%" stop-color="#EE7A36"/>
+      <stop offset="100%" stop-color="#C9502A" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="mid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE7B0" stop-opacity="0.2"/>
+      <stop offset="40%" stop-color="#FFE09A"/>
+      <stop offset="100%" stop-color="#FFB45A" stop-opacity="0.6"/>
+    </linearGradient>
+  </defs>
+  <rect width="136" height="236" fill="#000000"/>
+  <g transform="translate(68 222) scale(2.6)">
+    <path d="M0 -84 C20 -56 24 -24 15 -7 C9 5 -9 5 -15 -7 C-24 -24 -20 -56 0 -84 Z" fill="url(#outer)"/>
+    <path d="M0 -64 C13 -44 16 -20 10 -6 C6 2 -6 2 -10 -6 C-16 -20 -13 -44 0 -64 Z" fill="url(#mid)"/>
+    <path d="M0 -38 C7 -27 8 -14 5 -6 C2 -2 -2 -2 -5 -6 C-8 -14 -7 -27 0 -38 Z" fill="#FFFBEF"/>
+  </g>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="172" height="122" viewBox="0 0 172 122">
+  <!-- 水母's bell on black (drawn additively); the design's origin, about which it beats, is at (86, 64). -->
+  <defs>
+    <radialGradient id="bell" cx="50%" cy="32%" r="72%">
+      <stop offset="0%" stop-color="#FFF1E8" stop-opacity="0.95"/>
+      <stop offset="60%" stop-color="#F6B9A2" stop-opacity="0.78"/>
+      <stop offset="100%" stop-color="#E58F78" stop-opacity="0.55"/>
+    </radialGradient>
+  </defs>
+  <rect width="172" height="122" fill="#000000"/>
+  <g transform="translate(86 64)">
+    <path d="M-82 40 C-84 -30 -40 -62 0 -62 C40 -62 84 -30 82 40 Q70 52 58 44 Q46 54 34 46 Q22 56 10 48 Q0 56 -10 48 Q-22 56 -34 46 Q-46 54 -58 44 Q-70 52 -82 40 Z" fill="url(#bell)"/>
+    <path d="M-58 -22 Q0 -56 58 -22" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

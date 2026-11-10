@@ -17,6 +17,7 @@ set(EXTRA_COMPONENT_DIRS
     "${YAYKIT_FIRMWARE}/components/yaykit_board"
     "${YAYKIT_FIRMWARE}/components/yaykit_key"
     "${YAYKIT_FIRMWARE}/components/yaykit_link"
+    "${YAYKIT_FIRMWARE}/components/yaykit_motion"
     "${YAYKIT_FIRMWARE}/components/yaykit_ui"
     "${YAYKIT_FIRMWARE}/components/yaykit_voicecode")
 set(COMPONENTS main espcoredump)

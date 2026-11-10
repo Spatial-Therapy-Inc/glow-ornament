@@ -3,8 +3,8 @@
   "kind": "extension",
   "version": "0.1.0",
   "name": {
-    "zh": "glow-ornament",
-    "en": "glow-ornament"
+    "zh": "摆件",
+    "en": "Glow Ornaments"
   },
   "boards": [
     "tikpal-r1"
@@ -13,38 +13,52 @@
   "minYay": "0.1.14",
   "apiLevel": 4,
   "capabilities": {},
+  "permissions": {
+    "device": [
+      "motion"
+    ]
+  },
   "launch": {
     "summary": {
-      "zh": "计数器样板：短按加一，按住清零。",
-      "en": "Counter template: tap to count, hold to reset."
+      "zh": "摆件：十个会发光、会慢慢动的小摆件，摸一下会回应你，插着电摆在桌上陪着你。",
+      "en": "Glow Ornaments: ten softly glowing, slowly moving ornaments that answer your touch and keep you company on the desk."
     },
     "examples": {
       "zh": [
-        "打开计数器",
-        "帮我数数"
+        "打开摆件",
+        "放个摆件",
+        "来点柔和的光",
+        "陪我一会儿",
+        "给我放个水母"
       ],
       "en": [
-        "Open the counter",
-        "Count for me"
+        "Open Glow Ornaments",
+        "Show an ornament",
+        "Something soft to look at",
+        "Keep me company",
+        "Show me the jellyfish"
       ]
     }
   },
   "aliases": {
     "zh": [
-      "计数器"
+      "桌面摆件",
+      "发光摆件"
     ],
     "en": [
-      "Counter"
+      "Ornaments",
+      "Glow"
     ]
   },
   "scenes": [
-    "tools"
+    "relax"
   ],
   "audience": "all",
   "pricing": {
     "kind": "free"
   },
+  "ephemeral": true,
   "voiceCode": {
-    "number": 65280
+    "number": 265
   }
 }

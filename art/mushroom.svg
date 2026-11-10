@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="346" height="371" viewBox="60 95 346 371">
+  <!-- 蘑菇 without its glow (the firmware adds that): placed at (60, 95) on the 466 x 466 screen. -->
+  <defs>
+    <radialGradient id="cap" cx="50%" cy="88%" r="78%">
+      <stop offset="0%" stop-color="#FFFBF2"/>
+      <stop offset="55%" stop-color="#FBE7C2"/>
+      <stop offset="100%" stop-color="#EDB46E"/>
+    </radialGradient>
+    <linearGradient id="under" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE0A0"/>
+      <stop offset="100%" stop-color="#E89A4E"/>
+    </linearGradient>
+    <linearGradient id="stem" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF1D6" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#F2D6A8" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#F2D6A8" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="60" y="95" width="346" height="371" fill="#000000"/>
+  <path d="M198 286 Q186 370 192 466 L274 466 Q280 370 268 286 Z" fill="url(#stem)"/>
+  <path d="M63 280 C63 40 403 40 403 280 Q233 300 63 280 Z" fill="url(#cap)" opacity="0.95"/>
+  <path d="M63 280 Q233 300 403 280 Q233 318 63 280 Z" fill="url(#under)"/>
+  <ellipse cx="233" cy="290" rx="130" ry="10" fill="#FFE6B0" opacity="0.5"/>
+</svg>
