@@ -59,7 +59,8 @@ static orn_t s_orn;  // only the LVGL task changes it
 static orn_touch_t s_touch;
 static atomic_uint s_pending;
 static atomic_bool s_leaving;
-static atomic_int s_shape_to_save;
+static atomic_int s_shape_to_save;  // the shape to be saved (2 s after the last swipe, or when leaving)
+static atomic_int s_saved_shape;    // the shape in NVS now
 static atomic_int s_shape_cmd = -1;
 static esp_timer_handle_t s_save_timer;
 
@@ -140,16 +141,25 @@ static void on_touch(lv_event_t *e) {
 }
 
 /** A timer's task, whose stack is in internal RAM, as an NVS write needs. A burst of swipes is one write. */
-static void save_shape(void *arg) {
-    (void)arg;
+/** Writes the shape to be saved, if NVS does not have it yet. Its task's stack must be in internal RAM. */
+static void write_shape(void) {
+    const int shape = atomic_load(&s_shape_to_save);
+    if (shape == atomic_load(&s_saved_shape)) return;
     nvs_handle_t h;
     esp_err_t err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &h);
     if (err == ESP_OK) {
-        err = nvs_set_u8(h, NVS_KEY_SHAPE, (uint8_t)atomic_load(&s_shape_to_save));
+        err = nvs_set_u8(h, NVS_KEY_SHAPE, (uint8_t)shape);
         if (err == ESP_OK) err = nvs_commit(h);
         nvs_close(h);
     }
-    if (err != ESP_OK) ESP_LOGW(TAG, "shape not saved: %s", esp_err_to_name(err));
+    if (err == ESP_OK) atomic_store(&s_saved_shape, shape);
+    else ESP_LOGW(TAG, "shape not saved: %s", esp_err_to_name(err));
+}
+
+/** The save timer: 2 s after the last swipe, so a run of swipes is one write. */
+static void save_shape(void *arg) {
+    (void)arg;
+    write_shape();
 }
 
 static int load_shape(void) {
@@ -165,6 +175,10 @@ static int load_shape(void) {
 static void on_leave(void *ctx) {
     (void)ctx;
     atomic_store(&s_leaving, true);  // the panel stays as it is until the restart
+    // A shape swiped to in the last 2 s is still waiting for the save timer: written now, once (yaykit_app's own
+    // task for this, its stack in internal RAM), or the next open would show the one before.
+    esp_timer_stop(s_save_timer);
+    write_shape();
 }
 
 /** Which side is down, -1 .. 1: the sideways part of gravity in screen coordinates. */
@@ -462,7 +476,10 @@ void app_main(void) {
     // 2. yaykit_app first, so that a crash anywhere below counts towards the crash loop guard.
     ESP_ERROR_CHECK(yk_app_start(&(yk_app_config_t){.slug = APP_SLUG, .version = APP_VERSION}));
     yk_app_on_leave(on_leave, NULL);
-    orn_init(&s_orn, load_shape());
+    const int shape = load_shape();
+    atomic_store(&s_shape_to_save, shape);
+    atomic_store(&s_saved_shape, shape);
+    orn_init(&s_orn, shape);
     const esp_timer_create_args_t save = {.callback = save_shape, .name = "orn_save"};
     ESP_ERROR_CHECK(esp_timer_create(&save, &s_save_timer));
     // 3. Board and screen (dark until the first frame), the clock and its zone (for the night), then the side key.

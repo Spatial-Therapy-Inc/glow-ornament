@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 # yaykit_<slug with underscores> and the slug in main/main.c. Test builds may pass -DPROJECT_VER.
 # yaykit_voicecode: the app's 应用码 (devkit docs/voice-code.md), its number from app.json's voiceCode at build time.
 if(NOT DEFINED PROJECT_VER)
-    set(PROJECT_VER "0.1.0")
+    set(PROJECT_VER "0.1.1")
 endif()
 # The shared firmware directory: in this repository the app sits in firmware/<slug>; in an app's own repository
 # (the development kit's `kit new`) the kit is its devkit/ submodule.
